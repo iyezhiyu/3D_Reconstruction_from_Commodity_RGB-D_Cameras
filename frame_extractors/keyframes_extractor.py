@@ -113,7 +113,7 @@ if __name__ == "__main__":
     #Setting fixed threshold criteria
     USE_THRESH = True
     #fixed threshold value
-    THRESH = 0.28
+    THRESH = 0.4
     #Setting fixed threshold criteria
     USE_TOP_ORDER = False
     #Setting local maxima criteria
@@ -123,7 +123,9 @@ if __name__ == "__main__":
      
     #path of the YCB Video Dataset
     videopath = '/Users/zhiyu/Desktop/YCB_Video_Dataset/data'
-    videos = os.listdir(videopath)
+    #12 testing videos of YCB Video Dataset
+    videos = ["0048", "0049", "0050", "0051", "0052", "0053", \
+              "0054", "0055", "0056", "0057", "0058", "0059"]
     #Directory to store the processed frames
     out_dir = '/Users/zhiyu/Desktop/extract_result'
     #smoothing window size
@@ -192,12 +194,14 @@ if __name__ == "__main__":
             # save all keyframes as image
             
             if not os.path.exists(extract_outdir):
-                    os.makedirs(extract_outdir)
+                os.makedirs(extract_outdir)
+            if not os.path.exists(extract_outdir + '/color'):
+                os.makedirs(extract_outdir + '/color')
             idx = 0
             while(idx < len(color_files)):
                 frame = cv2.imread(target_video + '/' + color_files[idx])
                 if idx in keyframe_id_set:
-                    cv2.imwrite(extract_outdir + '/' + color_files[idx], frame)
+                    cv2.imwrite(extract_outdir + '/color/' + color_files[idx], frame)
                     shutil.copy(target_video +  '/'  + color_files[idx][:-9] + 'depth.png', extract_outdir + '/' +color_files[idx][:-9] + 'depth.png')
                     shutil.copy(target_video +  '/'  + color_files[idx][:-9] + 'meta.mat', extract_outdir + '/' +color_files[idx][:-9] + 'meta.mat')
                     keyframe_id_set.remove(idx)
