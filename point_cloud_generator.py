@@ -36,7 +36,7 @@ def generate_points(video):
         
         image_name = annotation['image_name']
         
-        #print("Processing", image_name)
+        print("Processing", image_name)
         
         class_id = annotation['class']
         
@@ -55,12 +55,13 @@ def generate_points(video):
         
         depth_image = imageio.imread(video_dir + '/' + image_name)/factor_depth
         
-        
+        min_,max_ = np.percentile(depth_image,[5,99])
+        print(min_,max_)
         points_collection = []
         for v in range(h):
             for u in range(w):
                 d = depth_image[v][u]
-                if d == 0:
+                if d == 0 or d > max_:
                     continue
                 point_2 = d
                 point_0 = (u - cx) * point_2 / fx
