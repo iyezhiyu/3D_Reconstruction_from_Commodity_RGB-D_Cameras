@@ -21,6 +21,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+
+def generate_categories():
+    class_file = open(YCB_Video_Dataset_path + '/image_sets/classes.txt')
+    line = class_file.readline()
+    category_id = 0
+    category_name2id = {}
+    category_id2name = {}
+    while line:
+        category_id += 1
+        category_name2id[line[:-1]] = category_id
+        category_id2name[str(category_id)] = line[:-1]
+        line = class_file.readline()
+    class_file.close()
+    return category_name2id, category_id2name
+
+
 def generate_points(video):
     
     start = time.time()
@@ -55,13 +71,14 @@ def generate_points(video):
         
         depth_image = imageio.imread(video_dir + '/' + image_name)/factor_depth
         
-        min_,max_ = np.percentile(depth_image,[5,99])
-        print(min_,max_)
+        #min_, max_ = np.percentile(depth_image,[5,99])
+        #print(min_,max_)
         points_collection = []
         for v in range(h):
             for u in range(w):
                 d = depth_image[v][u]
-                if d == 0 or d > max_:
+                #if d == 0 or d > max_:
+                if d == 0:
                     continue
                 point_2 = d
                 point_0 = (u - cx) * point_2 / fx
@@ -80,6 +97,8 @@ def generate_points(video):
 if __name__ == "__main__":
     
     input_dir = '/Users/zhiyu/Desktop/depth_instances'
+    output_dir = '/Users/zhiyu/Desktop/point_clouds'
+    YCB_Video_Dataset_path = '/Users/zhiyu/Desktop/YCB_Video_Dataset'
     
     
     # The videos to process
@@ -92,6 +111,7 @@ if __name__ == "__main__":
     
     w = 640
     h = 480
+    _, category_id2name = generate_categories()
     
     # Process for each video
     for video in videos:
@@ -99,14 +119,18 @@ if __name__ == "__main__":
         instances =  [[] for i in range(22)] # 21 classes, for the class id can be index directly
         generate_points(video)
     
-    for i in range(len(instances)):
-        if len(instances[i]) > 0:
-            all_points = []
-            for instance in instances[i]:
-                all_points  = all_points  + instance
-            t_points = np.array(all_points, dtype = np.float32)
-            p = pcl.PointCloud(t_points)
-            pcl.save(p, "class_" + str(i) + ".pcd", format = 'pcd')  
+        video_output_dir = output_dir + '/' + video
+        if not os.path.exists(video_output_dir):
+            os.makedirs(video_output_dir)
+            
+        for i in range(len(instances)):
+            if len(instances[i]) > 0:
+                all_points = []
+                for instance in instances[i]:
+                    all_points  = all_points  + instance
+                t_points = np.array(all_points, dtype = np.float32)
+                p = pcl.PointCloud(t_points)
+                pcl.save(p, output_dir + '/' + video + '/' + category_id2name[str(i)] + ".pcd", format = 'pcd')  
             
             
         

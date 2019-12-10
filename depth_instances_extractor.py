@@ -19,12 +19,13 @@ import json
 import imageio
 import numpy as np
 import time
+import matplotlib.pyplot as plt
 
 
 if __name__ == "__main__":
     
     ycb_video_dir = '/Users/zhiyu/Desktop/YCB_Video_Dataset'
-    extract_dir = '/Users/zhiyu/Desktop/extract_result'
+    extract_dir = '/Users/zhiyu/Desktop/extract_result_2'
     extract_annotation_dir = '/Users/zhiyu/Desktop/extract_result_annotations'
     out_dir = '/Users/zhiyu/Desktop/depth_instances'
 
@@ -77,7 +78,14 @@ if __name__ == "__main__":
             for i in range(len(classes)):
                 new_depth_name = image_name + '_' + str(classes[i]) + '.png'
                 segm = segms[i]
-                new_depth_image = np.array(depth_image * segm, dtype = np.uint16)
+                new_depth_image = np.array(depth_image * segm)
+                instance_only = new_depth_image[new_depth_image > 0]
+                min_, max_ = np.percentile(instance_only,[5,90])
+                new_depth_image_filter = np.where(new_depth_image > max_, 0, 1)
+                new_depth_image = np.array(new_depth_image * new_depth_image_filter, dtype = np.uint16)
+                #plt.title(image_name)
+                #plt.imshow(new_depth_image)
+                #plt.show()
                 json_output.append({'image_name': new_depth_name, \
                                     'class': classes[i], \
                                     'factor_depth': factor_depth, \

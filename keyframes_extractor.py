@@ -113,7 +113,7 @@ if __name__ == "__main__":
     #Setting fixed threshold criteria
     USE_THRESH = True
     #fixed threshold value
-    THRESH = 0.4
+    THRESH = 0.24
     #Setting fixed threshold criteria
     USE_TOP_ORDER = False
     #Setting local maxima criteria
